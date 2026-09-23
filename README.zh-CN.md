@@ -215,6 +215,12 @@ id 时将其禁用，且**绝不删除**旧运行时数据目录。
 - [`docs/location-memory.zh-CN.md`](./docs/location-memory.zh-CN.md)
   ——定位记忆部署与隐私指南。
 
+## 反馈与参与
+
+欢迎通过 Issue 和 Pull Request 参与贡献；较大的改动建议先开 Issue 讨论
+方向。想了解 PigMemory 相对上游 `memos-local-plugin` 的全部差异，可以从
+[CHANGELOG.md](./CHANGELOG.md) 读起。
+
 ## 致谢与许可
 
 PigMemory 基于 [MemTensor/MemOS](https://github.com/MemTensor/MemOS) 仓库的
