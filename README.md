@@ -17,24 +17,36 @@ time a three-tier retriever injects the right context at the right moment.
 **PigMemory is an independent, heavily reworked fork of
 [`memos-local-plugin`](https://github.com/MemTensor/MemOS/tree/main/apps/memos-local-plugin)
 from the [MemOS](https://github.com/MemTensor/MemOS) monorepo**: same
-Reflect2Evolve core, plus a new product identity, a new flagship capability,
-runtime hardening, and a full Chinese documentation set. Existing
-`memos-local-plugin` installations upgrade in place — data, skills, and config
-are reused without migration.
+Reflect2Evolve core, plus six new subsystems, a rewritten Chinese-first
+viewer, and runtime hardening. Existing `memos-local-plugin` installations
+upgrade in place — data, skills, and config are reused without migration.
 
 ## What's different from memos-local-plugin
 
-|  | memos-local-plugin (upstream) | PigMemory |
-| --- | --- | --- |
-| Product identity | `@memtensor/memos-local-plugin` | `@memtensor/pigmemory`, own plugin id `pigmemory`, own installers |
-| **Location memory** | — | OwnTracks + Cloudflare Worker relay, end-to-end encrypted |
-| Communication bridge | one canonical entry | two entries (`bridge.cts` / pure-module `bridge.mts`) kept in lockstep by an entry-consistency test suite |
-| Process detection | system-command expressions break on some shells | wide candidate listing + in-process command-line matching |
-| Model retries | per-model retry count ignored | max-retry wired through config, defaults, and both model clients |
-| Documentation | English | full Chinese set: 16-diagram visual guide, detailed flow + audit report |
-| Agent adapters | OpenClaw, Hermes, DeepSeek Harness | OpenClaw, Hermes (upstream's newer DSH adapter is not included) |
+Compared to upstream **v2.0.12**, PigMemory changes **232 files
+(+27,288 / −1,111 lines)**, evolves the database schema from 012 to **019**
+(seven new migrations), and ships a **fully rewritten Chinese-first viewer**
+plus a **brand-new 35-file unit test suite**. The complete machine-generated
+inventory lives in [CHANGELOG.md](./CHANGELOG.md); the core architecture is
+described in [ARCHITECTURE.md](./ARCHITECTURE.md).
 
-### 1. New flagship: private location memory
+| Capability | memos-local-plugin (upstream) | PigMemory |
+| --- | --- | --- |
+| Location memory | — | OwnTracks + Cloudflare Worker relay, end-to-end encrypted |
+| User-profile memory | — | long-term profile with inbox + retention policy |
+| Review interviews (Feishu) | — | scheduled cards turn daily usage into explicit feedback |
+| Monitoring & observability | rotating logs | durable observability store, API logs, health route, Logs page |
+| Retrieval lineage graph | — | see how every retrieval was assembled |
+| Evolution versioning | — | policy confidence / provenance / observed-gain migrations + preview/apply scripts |
+| Viewer | 48-file bilingual app | rewritten ~20-file Preact app, **Chinese-first**, new Guide / Logs / UserProfile pages |
+| Turn start | plain recall | turn timing, retrieval audit, `hermes.turn_start` ack |
+| LLM retries | retry config ignored | max-retry honored end to end |
+| Process detection | fragile shell expressions | compatible wide listing + in-process matching |
+| Documentation | English docs | deep Chinese docs + 16 diagrams + full audit report |
+| Tests | 27 unit + integration/e2e | 35 brand-new unit files |
+| Identity | `@memtensor/memos-local-plugin` | `@memtensor/pigmemory`, in-place upgrade |
+
+### New flagship: private location memory
 
 The agent knows where you are — without anyone else being able to know.
 
@@ -55,7 +67,30 @@ The agent knows where you are — without anyone else being able to know.
 - Deployment is a single `wrangler deploy` with no custom domain. Full guide:
   [`docs/location-memory.zh-CN.md`](./docs/location-memory.zh-CN.md) (Chinese).
 
-### 2. Runtime hardening (on the 2.0.x baseline)
+### Five more new subsystems
+
+- **User-profile memory** — a long-term profile layer with its own inbox and
+  `inboxRetentionDays` retention; surfaces in the viewer and in retrieval.
+- **Review interviews & proactive interaction (Feishu)** — scheduled
+  interview cards (`reviewInterview` / `proactiveInteraction` / `schedule`)
+  turn everyday usage into explicit task-level feedback.
+- **Monitoring & observability** — durable observability repository, API
+  logs, system-error capture, a health/monitor route, and a viewer Logs page.
+- **Retrieval lineage graph** — visualize candidates, channels, and fusion
+  for every retrieval (`core/retrieval/lineage-graph.ts` + viewer graph).
+- **Evolution versioning** — policy confidence/provenance and observed-gain
+  schema migrations with `preview-evolution-migration.ts` /
+  `apply-evolution-migration.ts` scripts.
+
+### Viewer rewritten, Chinese-first
+
+The upstream 48-file viewer was replaced by a compact ~20-file Preact app
+with a fully Chinese UI and a unified terminology table
+(`terms.ts`), plus new pages: Overview, Entity, **Guide** (16 formula/flow
+diagrams), Retrieval + hybrid-retrieval graph, Logs, Settings, Today's
+changes, and User Profile.
+
+### Runtime hardening (on the 2.0.x baseline)
 
 - The two bridge entries (script-style `bridge.cts` and pure-module
   `bridge.mts`) now share startup/shutdown protection, runtime-domain
@@ -64,14 +99,9 @@ The agent knows where you are — without anyone else being able to know.
 - Process probing no longer injects complex expressions into system commands;
   candidates are listed compatibly and matched in-process.
 - Per-model maximum retry counts are respected (config → defaults → clients).
-
-### 3. Documentation you can actually read
-
-- [`docs/pigmemory-visual-guide.zh-CN.md`](./docs/pigmemory-visual-guide.zh-CN.md) —
-  4 formula diagrams + 12 flow diagrams covering reward backprop, retrieval
-  ranking, policy induction, world model, and skill lifecycle.
-- [`docs/memos-detailed-flow.zh-CN.md`](./docs/memos-detailed-flow.zh-CN.md) —
-  the complete system flow with a full audit report (in Chinese).
+- Turn start is now first-class: retrieval-candidate audit in the orchestrator,
+  turn timing and retrieval acknowledgment (`hermes.turn_start`) in the
+  Hermes adapter, turn-start observability events.
 
 ## The Reflect2Evolve loop
 
@@ -157,6 +187,11 @@ priority order:
 3. `--home` CLI flag (bridge only)
 4. Default per-agent path
 
+New PigMemory options include `userProfile` (with `location` and
+`inboxRetentionDays`), `schedule`, `proactiveInteraction`, `reviewInterview`,
+and per-model max-retry settings. See [`templates/`](./templates) for
+annotated examples.
+
 For Docker deployments, set `MEMOS_HOME` explicitly:
 
 ```dockerfile
@@ -183,6 +218,19 @@ and host integrations without migration:
 The installers treat `memos-local-plugin` as a legacy plugin id and disable it
 when registering the new `pigmemory` id. They never delete the legacy runtime
 data directory.
+
+## Documentation
+
+- [CHANGELOG.md](./CHANGELOG.md) — the complete diff-derived change inventory
+  vs upstream v2.0.12 (Chinese).
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — core architecture (restored from
+  upstream).
+- [`docs/memos-detailed-flow.zh-CN.md`](./docs/memos-detailed-flow.zh-CN.md) —
+  complete system flow with a full audit report (Chinese).
+- [`docs/pigmemory-visual-guide.zh-CN.md`](./docs/pigmemory-visual-guide.zh-CN.md) —
+  4 formula diagrams + 12 flow diagrams (Chinese).
+- [`docs/location-memory.zh-CN.md`](./docs/location-memory.zh-CN.md) —
+  location-memory deployment & privacy guide (Chinese).
 
 ## Credits & license
 

@@ -31,3 +31,7 @@ __pycache__/
 
 # OS
 .DS_Store
+
+# Editor / backup leftovers
+*.bak
+*.orig

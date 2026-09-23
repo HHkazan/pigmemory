@@ -11,26 +11,41 @@
 
 PigMemory 是一个本地优先、文件落盘的记忆系统：它记录智能体做过的每一步，
 反思每步的效果，把价值沿轨迹回传，并把高价值模式结晶成可直接调用的技能。
-推理时由三级检索器（Skill → 轨迹/情节 → 世界模型）在合适的时机注入合适的上下文。
+推理时由三级检索器（Skill → 轨迹/情节 → 世界模型）在合适的时机注入合适
+的上下文。
 
 **PigMemory 是 [MemTensor/MemOS](https://github.com/MemTensor/MemOS) 仓库中
 [`memos-local-plugin`](https://github.com/MemTensor/MemOS/tree/main/apps/memos-local-plugin)
-的独立深度改版分支**：同样的 Reflect2Evolve 核心，在此之上带来了全新的产品身份、一个旗舰级新能力、运行时加固和完整的中文文档体系。已有的
-`memos-local-plugin` 安装可以**原地升级**——数据、技能、配置全部复用，无需迁移。
+的独立深度改版分支**：同样的 Reflect2Evolve 核心，在此之上新增了六大子系
+统、整体重写的中文优先 viewer，以及一系列运行时加固。已有的
+`memos-local-plugin` 安装可以**原地升级**——数据、技能、配置全部复用，无
+需迁移。
 
 ## 相比 memos-local-plugin 改了什么
 
-|  | memos-local-plugin（上游） | PigMemory |
-| --- | --- | --- |
-| 产品身份 | `@memtensor/memos-local-plugin` | `@memtensor/pigmemory`，独立插件 id `pigmemory`，独立安装器 |
-| **定位记忆** | — | OwnTracks + Cloudflare Worker 中继，端到端加密 |
-| 通信桥 | 单一规范入口 | 双入口（`bridge.cts` / 纯模块 `bridge.mts`）保持同步，并有入口一致性测试保障 |
-| 进程探测 | 系统命令表达式在部分 shell 上报错 | 宽范围列出候选进程 + 程序内匹配完整命令行 |
-| 模型重试 | 每模型重试次数配置被忽略 | 最大重试次数贯通配置、默认值和两个模型客户端 |
-| 文档 | 英文 | 完整中文体系：16 张原理图 + 详细流程与审计报告 |
-| 智能体适配 | OpenClaw、Hermes、DeepSeek Harness | OpenClaw、Hermes（未包含上游较新的 DSH 适配器） |
+相对上游 **v2.0.12**，PigMemory 共改动 **232 个文件（+27,288 / −1,111 行）**，
+数据库 schema 从 012 演进到 **019**（7 个新迁移），**viewer 整体重写为中文
+优先**，并附带 **35 个全新单元测试文件**。完整改动清单（由源码 diff 归纳）
+见 [CHANGELOG.md](./CHANGELOG.md)，核心架构见
+[ARCHITECTURE.md](./ARCHITECTURE.md)。
 
-### 1. 旗舰新能力：私密定位记忆
+| 能力 | memos-local-plugin（上游） | PigMemory |
+| --- | --- | --- |
+| 定位记忆 | — | OwnTracks + Cloudflare Worker 中继，端到端加密 |
+| 用户画像记忆 | — | 长期画像层，独立收件箱 + 保留期策略 |
+| 复审访谈（飞书） | — | 定时访谈卡片，把日常使用转化为显式反馈 |
+| 监控与可观测性 | 滚动日志 | 持久化可观测存储、API 日志、健康路由、日志页面 |
+| 检索血缘图 | — | 可视化每次检索是如何组装出来的 |
+| 进化版本化 | — | 策略置信度/来源/观测增益迁移 + 预演/应用脚本 |
+| Viewer | 48 文件双语应用 | 重写为约 20 文件的 Preact 应用，**中文优先**，新增图集/日志/画像页面 |
+| Turn Start | 普通召回 | 回合计时、检索审计、`hermes.turn_start` 确认 |
+| 模型重试 | 重试配置被忽略 | 最大重试次数端到端生效 |
+| 进程探测 | 脆弱的 shell 表达式 | 宽范围列候选 + 程序内匹配 |
+| 文档 | 英文 | 深度中文文档 + 16 张原理图 + 整库审计报告 |
+| 测试 | 27 个 unit + integration/e2e | 35 个全新 unit 文件 |
+| 身份 | `@memtensor/memos-local-plugin` | `@memtensor/pigmemory`，原地升级 |
+
+### 旗舰新能力：私密定位记忆
 
 让智能体知道你在哪——同时**任何第三方都无法知道**。
 
@@ -38,7 +53,8 @@ PigMemory 是一个本地优先、文件落盘的记忆系统：它记录智能�
   Worker 在 D1 里最多暂存 7 天的只有*加密信封*；它永远拿不到解密密钥、
   用户名、设备名或明文坐标。
 - 解密和地点判定**只发生在你的本机**。定位走独立的 `userProfile` 旁路：
-  不写入 L1/L2/L3、Reward 或 Skill，坐标永远不会交给大模型或任何通知渠道。
+  不写入 L1/L2/L3、Reward 或 Skill，坐标永远不会交给大模型或任何通知
+  渠道。
 - 长期存储只保留**语义地点**（名称、城市、geohash-7 邻域的 HMAC）和到离
   时间——不存坐标。
 - 到达、离开和每日摘要通过飞书卡片送达。新地点稳定停留后会收到一次命名
@@ -48,7 +64,27 @@ PigMemory 是一个本地优先、文件落盘的记忆系统：它记录智能�
 - 部署只需一次 `wrangler deploy`，不需要自有域名。完整指南见
   [`docs/location-memory.zh-CN.md`](./docs/location-memory.zh-CN.md)。
 
-### 2. 运行时加固（相对 2.0.x 基线）
+### 另外五个新子系统
+
+- **用户画像记忆**——带独立收件箱与 `inboxRetentionDays` 保留期的长期画
+  像层，在 viewer 与检索中呈现。
+- **复审访谈与主动交互（飞书）**——`reviewInterview` / `proactiveInteraction`
+  / `schedule` 配置驱动的定时访谈卡片，把日常使用转化为显式的任务级反馈。
+- **监控与可观测性**——持久化可观测性仓库、API 日志、系统错误捕获、健康
+  /监控路由和 viewer 日志页面。
+- **检索血缘图**——可视化每次检索的候选来源与融合过程
+  （`core/retrieval/lineage-graph.ts` + viewer 图组件）。
+- **进化版本化**——策略置信度/来源与观测增益的 schema 迁移，配套
+  `preview-evolution-migration.ts` / `apply-evolution-migration.ts` 脚本。
+
+### Viewer 整体重写，中文优先
+
+上游 48 文件的 viewer 被替换为约 20 文件的紧凑 Preact 应用：界面全面中文
+化，带统一术语表（`terms.ts`，如 `turn_start → 回合开始（Turn Start）`），
+新增页面：总览、实体、**原理图集（16 张公式/流程图）**、检索 + 混合检索
+图、日志、设置、今日变更、用户画像。
+
+### 运行时加固（相对 2.0.x 基线）
 
 - 两个通信桥入口（脚本式 `bridge.cts` 与纯模块 `bridge.mts`）现在共享
   启动/关闭防护、运行域参数、动态档案、配置化日志、进程探测和限时关闭，
@@ -56,14 +92,9 @@ PigMemory 是一个本地优先、文件落盘的记忆系统：它记录智能�
 - 进程探测不再向系统命令注入复杂表达式：兼容地宽范围列出候选进程，
   再在程序内解析命令行。
 - 每个模型的最大重试次数真正生效（配置 → 默认值 → 客户端）。
-
-### 3. 真正读得懂的文档
-
-- [`docs/pigmemory-visual-guide.zh-CN.md`](./docs/pigmemory-visual-guide.zh-CN.md) ——
-  4 张核心公式图 + 12 张流程图，覆盖奖励回传、检索排序、策略归纳、
-  世界模型和技能生命周期。
-- [`docs/memos-detailed-flow.zh-CN.md`](./docs/memos-detailed-flow.zh-CN.md) ——
-  完整系统流程与整库审计报告。
+- **Turn Start 成为一等公民**：orchestrator 增加回合开始检索候选审计；
+  Hermes 适配器记录回合计时并在 `hermes.turn_start` 上做检索确认；
+  可观测性事件纳入 turn_start。
 
 ## Reflect2Evolve 记忆闭环
 
@@ -144,6 +175,11 @@ daemon/          # 通信桥 pid/port 文件
 3. `--home` 命令行参数（仅通信桥）
 4. 各智能体默认路径
 
+PigMemory 新增配置包括 `userProfile`（含 `location` 与
+`inboxRetentionDays`）、`schedule`、`proactiveInteraction`、
+`reviewInterview`，以及每模型最大重试等，注释模板见
+[`templates/`](./templates)。
+
 Docker 部署时请显式设置 `MEMOS_HOME`：
 
 ```dockerfile
@@ -166,6 +202,18 @@ CMD node /opt/data/.hermes/plugins/pigmemory/bridge.cts --agent=hermes --daemon 
 
 安装器会把 `memos-local-plugin` 视为旧插件 id，在注册新的 `pigmemory`
 id 时将其禁用，且**绝不删除**旧运行时数据目录。
+
+## 文档
+
+- [CHANGELOG.md](./CHANGELOG.md)——相对上游 v2.0.12 的完整改动清单（源码
+  diff 归纳）。
+- [ARCHITECTURE.md](./ARCHITECTURE.md)——核心架构说明（自上游恢复）。
+- [`docs/memos-detailed-flow.zh-CN.md`](./docs/memos-detailed-flow.zh-CN.md)
+  ——完整系统流程与整库审计报告。
+- [`docs/pigmemory-visual-guide.zh-CN.md`](./docs/pigmemory-visual-guide.zh-CN.md)
+  ——4 张核心公式图 + 12 张流程图。
+- [`docs/location-memory.zh-CN.md`](./docs/location-memory.zh-CN.md)
+  ——定位记忆部署与隐私指南。
 
 ## 致谢与许可
 
