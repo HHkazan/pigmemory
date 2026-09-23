@@ -232,6 +232,12 @@ data directory.
 - [`docs/location-memory.zh-CN.md`](./docs/location-memory.zh-CN.md) —
   location-memory deployment & privacy guide (Chinese).
 
+## Contributing
+
+Issues and pull requests are welcome. For larger changes, please open an
+issue first to discuss the direction. To understand how PigMemory diverges
+from upstream `memos-local-plugin`, start with [CHANGELOG.md](./CHANGELOG.md).
+
 ## Credits & license
 
 PigMemory is based on
