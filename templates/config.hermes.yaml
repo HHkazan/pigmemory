@@ -1,0 +1,83 @@
+# PigMemory — Hermes runtime configuration
+#
+# Keep this file short. Most plugin behavior is controlled by sensible
+# defaults baked into the code; only the fields below are likely to change
+# per user. If you need to tune an advanced option (algorithm thresholds,
+# log rotation, retrieval budgets, etc.) see docs/CONFIG-ADVANCED.md in
+# the source repo; any field there can be added here and will take effect.
+#
+# Sensitive fields (apiKey, teamToken) live HERE — there is no
+# .env file. install.sh sets this file's mode to 600.
+
+version: 1
+
+viewer:
+  # Hermes owns :18800. OpenClaw (if installed) runs its viewer on
+  # :18799. Each agent serves its own panel from its own process —
+  # there is no port sharing or read-only "peer" view.
+  port: 18800
+
+embedding:
+  provider: local         # local | openai_compatible | gemini | cohere | voyage | mistral
+  apiKey: ""
+
+llm:
+  # Hermes has no "host LLM", so pick a real provider.
+  provider: openai_compatible
+  apiKey: ""              # REQUIRED — fill in before running
+  model: ""               # blank = provider default (e.g. gpt-4o-mini for openai_compatible)
+
+storage:
+  ftsTokenizer: trigram    # trigram | cjk; cjk improves short Chinese keyword recall
+
+# Independent sidecar memory about the human user. It never feeds L1/L2/L3.
+userProfile:
+  enabled: false           # opt in from config.yaml or the Viewer settings page
+  inboxRetentionDays: 7    # processed raw turns only; unprocessed turns are never deleted
+  location:
+    enabled: false          # independent opt-in; userProfile.enabled=false always wins
+    relayUrl: ""            # https://<worker>.workers.dev (without /pull)
+    pollIntervalSeconds: 60
+    rawRetentionDays: 7
+    maxAccuracyMeters: 200
+    clusterRadiusMeters: 200
+    arrivalMinSamples: 3
+    arrivalDwellMinutes: 20
+    departureRadiusMeters: 350
+    departureConfirmSamples: 2
+    namingPromptAfterMinutes: 30
+  schedule:
+    enabled: true
+    time: "23:10"         # local wall-clock time, editable in the Viewer
+    timezone: Asia/Shanghai
+    catchUpOnStartup: true
+  proactiveInteraction:
+    enabled: false         # can keep profile memory on without proactive messages
+    sendTime: "09:30"
+    dailyLimit: 1
+    quietHours: { start: "22:30", end: "08:30" }
+
+algorithm:
+  lightweightMemory:
+    enabled: true          # true = low-cost summaries only; false = memory self-evolution with tasks/experiences/world models/skills
+  reviewInterview:
+    enabled: false         # opt in to automatic Feishu memory-rating cards
+    manualEnabled: true    # /review can open the previous memory-using turn
+    threshold: 65
+    sendDelaySeconds: 8
+    cooldownMinutes: 30
+    dailyLimit: 5
+    weights: { tool: 30, difficulty: 30, memory: 40 }
+    memory: { relevanceWeight: 70, uncertaintyWeight: 30 }
+
+hub:
+  enabled: false
+  address: ""
+  teamToken: ""
+
+telemetry:
+  enabled: true
+
+logging:
+  level: info             # trace | debug | info | warn | error | fatal
+  detailedView: false     # show advanced log filters / chain view in the viewer

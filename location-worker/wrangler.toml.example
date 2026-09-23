@@ -1,0 +1,14 @@
+name = "pigmemory-location-relay"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+workers_dev = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pigmemory-location-relay"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+# Configure these with `wrangler secret put`; never place values here:
+# LOCATION_RELAY_USERNAME
+# LOCATION_RELAY_PASSWORD
+# LOCATION_RELAY_CONTROL_TOKEN

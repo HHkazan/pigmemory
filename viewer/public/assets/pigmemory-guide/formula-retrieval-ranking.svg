@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430">
+    <defs><linearGradient id="formula-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffdf9"/><stop offset="1" stop-color="#f4fbf8"/></linearGradient><filter id="formula-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#6d4a40" flood-opacity="0.10"/></filter></defs>
+    <rect width="1200" height="430" rx="28" fill="url(#formula-bg)"/>
+    <rect x="34" y="34" width="8" height="76" rx="4" fill="#8064bb"/>
+    <text x="66" y="65" font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, sans-serif" font-size="16" font-weight="800" letter-spacing="2" fill="#8064bb">PIGMEMORY · 核心公式图解</text>
+    <text x="66" y="104" font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, sans-serif" font-size="30" font-weight="900" fill="#433735">多通道融合与 MMR 去重</text>
+    <text x="1160" y="67" text-anchor="end" font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, sans-serif" font-size="15" fill="#887872">先算相关性，再惩罚与已选结果的重复</text>
+    
+      <g filter="url(#formula-shadow)"><rect x="42" y="142" width="1116" height="238" rx="22" fill="#f5efff" stroke="#9f83d5" stroke-width="2"/></g>
+      <text x="80" y="188" font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, sans-serif" font-size="17" font-weight="800" fill="#624196">① 多通道相关性</text>
+      <text x="600" y="238" text-anchor="middle" font-family="STIX Two Math, Cambria Math, Noto Sans Math, serif" font-size="27" fill="#41364f">relevance = base + 0.4 Σ<tspan baseline-shift="sub" font-size="17">i</tspan> [1 / (k + rank<tspan baseline-shift="sub" font-size="17">i</tspan> + 1)] + qualityBoost</text>
+      <line x1="105" y1="274" x2="1095" y2="274" stroke="#c8b8e5" stroke-width="2"/>
+      <text x="80" y="313" font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, sans-serif" font-size="17" font-weight="800" fill="#624196">② 多样性选择</text>
+      <text x="600" y="353" text-anchor="middle" font-family="STIX Two Math, Cambria Math, Noto Sans Math, serif" font-size="26" fill="#41364f">MMR(c) = λ · relevance(c) − (1−λ) · max cosine(c, selected)</text>
+  </svg>

@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Runtime state (created by installer; never commit)
+data/
+logs/
+backups/
+daemon/
+memos-local/
+skills/
+artifacts/
+
+# Local agent tooling
+.agents/
+.codex/
+
+# Secrets & local config
+config.yaml
+config.yaml.bak*
+.auth.json
+telemetry.credentials.json
+bridge-status.json
+.memos-node-bin
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store

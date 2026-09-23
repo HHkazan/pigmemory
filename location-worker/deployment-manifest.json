@@ -1,0 +1,24 @@
+{
+  "runtime": "Cloudflare Workers",
+  "publicRoute": "workers.dev",
+  "d1Binding": "DB",
+  "schema": "schema.sql",
+  "entrypoint": "src/index.js",
+  "endpoints": [
+    "POST /pub",
+    "POST /pull",
+    "POST /ack",
+    "POST /control/lease",
+    "POST /control/revoke",
+    "GET /health"
+  ],
+  "secretNames": [
+    "LOCATION_RELAY_USERNAME",
+    "LOCATION_RELAY_PASSWORD",
+    "LOCATION_RELAY_CONTROL_TOKEN"
+  ],
+  "secretValuesIncluded": false,
+  "plaintextCoordinatesStored": false,
+  "maximumCiphertextRetentionDays": 7,
+  "collectionLeaseSeconds": 600
+}

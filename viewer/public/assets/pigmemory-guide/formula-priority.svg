@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="430" viewBox="0 0 1200 430">
+    <defs><linearGradient id="formula-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffdf9"/><stop offset="1" stop-color="#f4fbf8"/></linearGradient><filter id="formula-shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="7" stdDeviation="9" flood-color="#6d4a40" flood-opacity="0.10"/></filter></defs>
+    <rect width="1200" height="430" rx="28" fill="url(#formula-bg)"/>
+    <rect x="34" y="34" width="8" height="76" rx="4" fill="#339475"/>
+    <text x="66" y="65" font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, sans-serif" font-size="16" font-weight="800" letter-spacing="2" fill="#339475">PIGMEMORY · 核心公式图解</text>
+    <text x="66" y="104" font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, sans-serif" font-size="30" font-weight="900" fill="#433735">记忆检索优先级与时间衰减</text>
+    <text x="1160" y="67" text-anchor="end" font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, sans-serif" font-size="15" fill="#887872">负价值保留在库中，但普通检索会下沉</text>
+    
+      <g filter="url(#formula-shadow)"><rect x="42" y="142" width="1116" height="238" rx="22" fill="#eaf8f3" stroke="#66b79b" stroke-width="2"/></g>
+      <text x="298" y="232" text-anchor="middle" font-family="STIX Two Math, Cambria Math, Noto Sans Math, serif" font-size="34" fill="#234f43">d(Δt) = 0.5<tspan baseline-shift="super" font-size="20">Δdays / H</tspan></text>
+      <path d="M520 246 L650 246" stroke="#66b79b" stroke-width="4"/>
+      <text x="862" y="232" text-anchor="middle" font-family="STIX Two Math, Cambria Math, Noto Sans Math, serif" font-size="34" fill="#234f43">priority<tspan baseline-shift="sub" font-size="20">t</tspan> = max(V<tspan baseline-shift="sub" font-size="20">t</tspan>, 0) × d(Δt)</text>
+      <g font-family="Noto Sans CJK SC, Source Han Sans SC, Microsoft YaHei, sans-serif" font-size="16" fill="#4f6860"><rect x="100" y="292" width="250" height="48" rx="24" fill="#fff"/><text x="225" y="322" text-anchor="middle">H：半衰期，默认 30 天</text><rect x="475" y="292" width="250" height="48" rx="24" fill="#fff"/><text x="600" y="322" text-anchor="middle">V &gt; 0：按时间逐渐衰减</text><rect x="850" y="292" width="250" height="48" rx="24" fill="#fff"/><text x="975" y="322" text-anchor="middle">V ≤ 0：priority = 0</text></g>
+  </svg>

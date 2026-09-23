@@ -1,0 +1,22 @@
+{
+  "id": "pigmemory",
+  "name": "PigMemory",
+  "description": "Reflect2Evolve memory plugin with L1 traces, L2 policies, L3 world models, skill crystallization, and three-tier retrieval.",
+  "version": "2.0.12",
+  "kind": "memory",
+  "contracts": {
+    "tools": [
+      "memos_search",
+      "memos_get",
+      "memos_timeline",
+      "memos_environment",
+      "memos_skill_list",
+      "memos_skill_get"
+    ]
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": true,
+    "properties": {}
+  }
+}

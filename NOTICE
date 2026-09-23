@@ -1,0 +1,11 @@
+PigMemory
+Copyright 2026 PigMemory contributors
+
+This product is based on memos-local-plugin from the MemOS project
+(https://github.com/MemTensor/MemOS), Copyright MemTensor contributors,
+licensed under the Apache License, Version 2.0.
+
+Modifications and additions in PigMemory (including the location-memory
+feature, dual-entry bridge hardening, and the Chinese documentation set)
+are Copyright 2026 PigMemory contributors and are licensed under the
+Apache License, Version 2.0.
